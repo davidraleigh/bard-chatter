@@ -8,8 +8,8 @@ var assert = require('assert');
 var url = require('url');
 var qs = require('qs');
 
-
-var mongoURL = 'mongodb://localhost:27017/bard';
+var mongoURL = 'mongodb://davidraleigh:ticANTiNGESulOM@ds055642-a0.mongolab.com:55642,ds055642-a1.mongolab.com:55642/bard-db?replicaSet=rs-ds055642';
+//var mongoURL = 'mongodb://localhost:27017/bard';
 
 /* GET all shakespeare play titles listing. */
 router.get('/play/titles', function(req, res, next) {
