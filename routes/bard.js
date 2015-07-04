@@ -14,15 +14,13 @@ var mongoURL = 'mongodb://davidraleigh:ticANTiNGESulOM@ds055642-a0.mongolab.com:
 /* GET all shakespeare play titles listing. */
 router.get('/play/titles', function(req, res, next) {
     MongoClient.connect(mongoURL, function(err, db) {
-        if (err) {
-            res.sendStatus(500);
-        }
+        assert.equal(null, err);
         console.log("Connected correctly to server");
         res.setHeader('Content-Type', 'application/json');
         var collection = db.collection('playOverview');
         collection.find({}, {'playTitle':true, '_id':false}).toArray(function(err, doc) {
             if (err || doc === null) {
-                res.sendStatus(500);
+                // TODO return error
             }
             var arrayOfTitles = doc.map(function(item) {
                return item.playTitle;
@@ -37,15 +35,13 @@ router.get('/play/locations', function(req, res, next) {
     var result = url.parse(req.url, true);
     // TODO handle the case where an incorrect formated url is passed.
     MongoClient.connect(mongoURL, function(err, db) {
-        if (err) {
-            res.sendStatus(500);
-        }
+        assert.equal(null, err);
         console.log("Connected correctly to server");
         res.setHeader('Content-Type', 'application/json');
         var collection = db.collection('playOverview');
         collection.findOne(result.query, {fields:{'locations':true, '_id':false}}, function(err, doc) {
             if (err || doc === null) {
-                res.sendStatus(500);
+                // TODO return error
             }
             res.send(JSON.stringify(doc));
         });
@@ -58,16 +54,13 @@ router.get('/play/characters', function(req, res, next) {
     var result = url.parse(req.url, true);
     // TODO handle the case where an incorrect formated url is passed.
     MongoClient.connect(mongoURL, function(err, db) {
-        if (err) {
-            res.sendStatus(500);
-        }
         assert.equal(null, err);
         console.log("Connected correctly to server");
         res.setHeader('Content-Type', 'application/json');
         var collection = db.collection('playOverview');
         collection.findOne(result.query, {fields:{'characters':true, '_id':false}}, function(err, doc) {
             if (err || doc === null) {
-                res.sendStatus(500);
+                // TODO return error
             }
             res.send(JSON.stringify(doc));
         });
@@ -79,7 +72,7 @@ function draw(collection, query, callback, breakoutCount) {
     breakoutCount = breakoutCount || 0;
 
     if (breakoutCount === 4) {
-        callback({err: "error, random stack limit of 4 reached"})
+        callback({err: "error"})
         return;
     }
     var query = query || { };
@@ -156,17 +149,14 @@ router.get('/play/quote', function(req, res, next) {
     var quoteCollection = quoteCollections[Math.floor(Math.random()*quoteCollections.length)];
     // TODO handle the case where an incorrect formated url is passed.
     MongoClient.connect(mongoURL, function(err, db) {
-        if (err) {
-            res.sendStatus(500);
-        }
-
+        assert.equal(null, err);
         console.log("Connected correctly to server");
         res.setHeader('Content-Type', 'application/json');
         var collection = db.collection(quoteCollection);
         draw(collection, queryObj, function(err, result) {
             if (err || result === null) {
                 console.log("Argh!!! /play/quote error");
-                res.sendStatus(500);
+                // TODO return error
             }
             res.send(JSON.stringify(result));
         });
