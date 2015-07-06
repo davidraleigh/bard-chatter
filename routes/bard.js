@@ -19,7 +19,7 @@ router.get('/play/titles', function(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var collection = db.collection('playOverview');
         collection.find({}, {'playTitle':true, '_id':false}).toArray(function(err, doc) {
-            if (err || doc === null) {
+                if (err || doc === null) {
                 // TODO return error
             }
             var arrayOfTitles = doc.map(function(item) {
@@ -137,6 +137,7 @@ function qsCleanArray(arr) {
     for (var i = 0; i < arr.length; i++) {
         arr[i] = qsCleanValue(arr[i]);
     }
+    return arr;
 }
 
 
