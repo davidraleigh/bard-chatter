@@ -5,3 +5,17 @@ block content
     h1= title
     p Welcome to #{title}
     a(class='btn btn-primary btn-lg', href='../bard/play/titles') Titles
+
+
+    div(class="dropdown" data-bind="visible: showPlayTitles")
+        button(class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown") All Plays
+            span(class="caret")
+        ul(class="dropdown-menu" data-bind="foreach: plays")
+            li
+                a(href="#" data-bind="click: $parent.removePlay")
+                    span(data-bind="text: playTitle")
+
+    div
+        p(data-bind="visible: showSelectedPlay") Play :
+            button(type="button" class="btn btn-default btn-sm")
+                span(class="glyphicon glyphicon-remove" data-bind="text: selectedPlayTitle")

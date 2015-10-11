@@ -13,22 +13,32 @@ var mongoURL = 'mongodb://davidraleigh:ticANTiNGESulOM@ds055642-a0.mongolab.com:
 
 /* GET all shakespeare play titles listing. */
 router.get('/play/titles', function(req, res, next) {
+    res.setHeader('Content-Type', 'application/json');
+    fetchPlayTitles(function(playTitles, err) {
+        if (err || playTitles === null) {
+            //TODO return error
+        }
+        res.send(JSON.stringify(playTitles));
+        next();
+    })
+});
+
+var fetchPlayTitles = function(callback) {
     MongoClient.connect(mongoURL, function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
-        res.setHeader('Content-Type', 'application/json');
         var collection = db.collection('playOverview');
         collection.find({}, {'playTitle':true, '_id':false}).toArray(function(err, doc) {
-                if (err || doc === null) {
-                // TODO return error
+            if (err || doc === null) {
+                callback(null, err);
             }
             var arrayOfTitles = doc.map(function(item) {
-               return item.playTitle;
+                return item.playTitle;
             });
-            res.send(JSON.stringify(arrayOfTitles));
+            callback(arrayOfTitles, null);
         });
     });
-});
+};
 
 router.get('/play/locations', function(req, res, next) {
     // get the filter from the url.
@@ -165,5 +175,6 @@ router.get('/play/quote', function(req, res, next) {
 });
 
 module.exports = router;
+module.exports.fetchPlayTitles = fetchPlayTitles;
 
 

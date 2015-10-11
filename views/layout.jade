@@ -1,9 +1,11 @@
 doctype html
 html
     head
-        title= title
+        title= title || 'Title not set.'
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='styleSheet', href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
         link(rel='styleSheet', href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css')
-    body
+        -each script in scripts
+            script(type='text/javascript', src=script)
+    body(onload='ko.applyBindings(new ViewModel());')
 block content
