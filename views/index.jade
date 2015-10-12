@@ -7,15 +7,28 @@ block content
     a(class='btn btn-primary btn-lg', href='../bard/play/titles') Titles
 
 
-    div(class="dropdown" data-bind="visible: showPlayTitles")
+    div(class="dropdown" id="playTitlesDropdown" data-bind="visible: showPlayTitles")
         button(class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown") All Plays
             span(class="caret")
         ul(class="dropdown-menu" data-bind="foreach: plays")
             li
-                a(href="#" data-bind="click: $parent.removePlay")
+                a(href="#" data-bind="click: $parent.selectPlay")
                     span(data-bind="text: playTitle")
 
+    div(class="dropdown" id="playersDropdown")
+        button(class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown") All Players
+            span(class="caret")
+        ul(class="dropdown-menu" data-bind="foreach: players")
+            li
+                a(href="#" data-bind="click: $parent.selectPlayer")
+                    span(data-bind="text: character")
     div
         p(data-bind="visible: showSelectedPlay") Play :
-            button(type="button" class="btn btn-default btn-sm")
+            button(type="button" class="btn btn-default btn-sm" data-bind="click: removePlay")
                 span(class="glyphicon glyphicon-remove" data-bind="text: selectedPlayTitle")
+    div
+        p(data-bind="visible: showSelectedPlayer") Player :
+            button(type="button" class="btn btn-default btn-sm" data-bind="click: removePlayer")
+                span(class="glyphicon glyphicon-remove" data-bind="text: selectedPlayer")
+    div
+        p(data-bind="text: quote")

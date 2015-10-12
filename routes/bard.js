@@ -5,8 +5,9 @@ var express = require('express');
 var router = express.Router();
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
+var qsEx = require('../lib/queryStringLib.js')
 var url = require('url');
-var qs = require('qs');
+
 
 var mongoURL = 'mongodb://davidraleigh:ticANTiNGESulOM@ds055642-a0.mongolab.com:55642,ds055642-a1.mongolab.com:55642/bard-db?replicaSet=rs-ds055642';
 //var mongoURL = 'mongodb://localhost:27017/bard';
@@ -87,6 +88,9 @@ function draw(collection, query, callback, breakoutCount) {
     }
     var query = query || { };
     query['random'] = { $lte: Math.random() };
+
+    //TODO maybe this sort is super inefficient
+    //http://stackoverflow.com/questions/2824157/random-record-from-mongodb
     collection.find(query).sort({random: -1}).batchSize(1).toArray(function(err, doc) {
         if (err) {
             callback(err);
@@ -95,19 +99,19 @@ function draw(collection, query, callback, breakoutCount) {
             delete query['random'];
             collection.count(query, function(err, count) {
                 if (count === 0)
-                    callback({err:'error'});
+                    callback({err:'error, count === 0'});
                 else
                     draw(collection, query, callback, breakoutCount + 1);
             });
         } else {
             doc[0].random = Math.random();
             // give a new random number to increase randomness?
+            callback({}, doc[0]);
             collection.update({ _id: doc[0]._id }, doc[0], function(err, result) {
-                if (err) {
-                    callback(err);
-                } else {
-                    callback({}, doc[0]);
-                }
+                if (err)
+                    console.log("failed to update randomness" + err);
+                else
+                    console.log("succeeded to update randomness");
             });
         }
     });
@@ -116,46 +120,11 @@ function draw(collection, query, callback, breakoutCount) {
 var quoteCollections = ['sentences', 'endStopped', 'phrases'];
 
 
-function qsCleanValue(val) {
-    if (typeof val == 'undefined' || val === null || val === '') {
-        return null;
-    } else if (val === 'false' || val === 'true') {
-        return val === 'true';
-    } else if (typeof val === 'string' && /^[-+]?(\d+|\d+\.\d*|\d*\.\d+)$/.test(val)) {
-        return Number(val);
-    } else if (Array.isArray(val)) {
-        return qsCleanArray(val);
-    } else if (typeof val === 'string') {
-        return val;
-    } else if (typeof val === 'object') {
-        return qsCleanObject(val);
-    } else {
-        console.log('WHAT HAPPPPPPPPENED!!!!!')
-        return val;
-    }
-}
-
-function qsCleanObject(obj) {
-    for (var key in obj) {
-        console.log(key);
-        obj[key] = qsCleanValue(obj[key]);
-    }
-    return obj;
-}
-
-function qsCleanArray(arr) {
-    for (var i = 0; i < arr.length; i++) {
-        arr[i] = qsCleanValue(arr[i]);
-    }
-    return arr;
-}
-
 
 router.get('/play/quote', function(req, res, next) {
     // get the filter from the url.
     var result = url.parse(req.url, false);
-    var queryObj = qs.parse(result.query);
-    queryObj = qsCleanObject(queryObj);
+    var queryObj = qsEx.parse(result.query);
 
     var quoteCollection = quoteCollections[Math.floor(Math.random()*quoteCollections.length)];
     // TODO handle the case where an incorrect formated url is passed.
@@ -165,8 +134,9 @@ router.get('/play/quote', function(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var collection = db.collection(quoteCollection);
         draw(collection, queryObj, function(err, result) {
-            if (err || result === null) {
+            if (result === null) {
                 console.log("Argh!!! /play/quote error");
+                console.log(err);
                 // TODO return error
             }
             res.send(JSON.stringify(result));
